@@ -1,0 +1,92 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  sam-app
+
+  Sample SAM Template for sam-app
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Runtime: python3.8
+    Timeout: 60
+  Api:
+    Cors: "'*'"
+
+Resources:
+  # Temporary role with too-wide permissions. Should create one role per
+  # function with least privilege principle.
+  GenericLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
+
+  GetGeofencesFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: api/
+      Handler: app.get_geofences
+      Role: !GetAtt GenericLambdaExecutionRole.Arn
+      Events:
+        GetGeofences:
+          Type: Api
+          Properties:
+            Path: /geofences
+            Method: GET
+        # Api:
+        #   Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+        #   Properties:
+        #     Path: /{proxy+}
+        #     Method: any
+
+  # For some reason the alias "CreateGeofenceFunction" makes the function crash (???)
+  CreateGeofenceFn:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: api/
+      Handler: app.create_geofence
+      Role: !GetAtt GenericLambdaExecutionRole.Arn
+      Events:
+        CreateGeofence:
+          Type: Api
+          Properties:
+            Path: /geofences
+            Method: POST
+
+  DeleteGeofenceFn:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: api/
+      Handler: app.delete_geofence
+      Role: !GetAtt GenericLambdaExecutionRole.Arn
+      Events:
+        DeleteGeofence:
+          Type: Api
+          Properties:
+            Path: /geofences/{id}
+            Method: DELETE
+
+  GetPositionFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: api/
+      Handler: app.get_device_position
+      Role: !GetAtt GenericLambdaExecutionRole.Arn
+      Events:
+        GetDevicePosition:
+          Type: Api
+          Properties:
+            Path: /position
+            Method: GET
+
+Outputs:
+  ApiEndpoint:
+    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
