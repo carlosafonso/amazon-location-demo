@@ -14,6 +14,17 @@ Globals:
     Cors: "'*'"
 
 Resources:
+  DevicesTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      TableName: Devices
+      PrimaryKey:
+        Name: DeviceId
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
   # Temporary role with too-wide permissions. Should create one role per
   # function with least privilege principle.
   GenericLambdaExecutionRole:
@@ -28,7 +39,7 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AdministratorAccess
 
-  GetGeofencesFunction:
+  GetGeofencesFn:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: api/
@@ -73,7 +84,46 @@ Resources:
             Path: /geofences/{id}
             Method: DELETE
 
-  GetPositionFunction:
+  GetDevicesFn:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: api/
+      Handler: app.get_devices
+      Role: !GetAtt GenericLambdaExecutionRole.Arn
+      Events:
+        GetGeofences:
+          Type: Api
+          Properties:
+            Path: /devices
+            Method: GET
+
+  CreateDeviceFn:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: api/
+      Handler: app.create_device
+      Role: !GetAtt GenericLambdaExecutionRole.Arn
+      Events:
+        GetGeofences:
+          Type: Api
+          Properties:
+            Path: /devices
+            Method: POST
+
+  DeleteDeviceFn:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: api/
+      Handler: app.delete_device
+      Role: !GetAtt GenericLambdaExecutionRole.Arn
+      Events:
+        DeleteGeofence:
+          Type: Api
+          Properties:
+            Path: /devices/{id}
+            Method: DELETE
+
+  GetPositionFn:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: api/
