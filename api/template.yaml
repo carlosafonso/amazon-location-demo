@@ -1,9 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: >
-  sam-app
-
-  Sample SAM Template for sam-app
+Description: Demo app to showcase Amazon Location Service.
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
@@ -40,7 +37,7 @@ Resources:
         - arn:aws:iam::aws:policy/AdministratorAccess
 
   GetGeofencesFn:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: api/
       Handler: app.get_geofences
@@ -51,13 +48,7 @@ Resources:
           Properties:
             Path: /geofences
             Method: GET
-        # Api:
-        #   Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
-        #   Properties:
-        #     Path: /{proxy+}
-        #     Method: any
 
-  # For some reason the alias "CreateGeofenceFunction" makes the function crash (???)
   CreateGeofenceFn:
     Type: AWS::Serverless::Function
     Properties:
