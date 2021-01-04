@@ -1,0 +1,5 @@
+{
+	"apiEndpoint": "<YOUR_API_ENDPOINT>",
+	"cognitoIdentityPoolId": "<YOUR_COGNITO_IDENTITY_POOL_ID>",
+	"mapName": "<YOUR_MAP_NAME>"
+}

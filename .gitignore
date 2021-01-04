@@ -2,3 +2,6 @@
 .aws-sam
 samconfig.toml
 envvars.json
+www/config.json
+www/dist/
+www/node_modules/
