@@ -123,7 +123,7 @@ Resources:
             Path: /devices/{id}
             Method: DELETE
 
-  GetPositionFn:
+  GetDevicePositionFn:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: api/
@@ -133,7 +133,7 @@ Resources:
         GetDevicePosition:
           Type: Api
           Properties:
-            Path: /position
+            Path: /devices/{id}/position
             Method: GET
 
 Outputs:

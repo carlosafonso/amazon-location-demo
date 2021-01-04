@@ -100,7 +100,6 @@ AWS_ENDPOINT = None
 if 'AWS_SAM_LOCAL' in os.environ:
     AWS_ENDPOINT = 'http://host.docker.internal:8000'
 
-DEVICE_ID = 'TestDevice'
 GEOFENCE_COLLECTION_NAME = 'MyGeofenceCollection'
 TRACKER_NAME = 'MyTracker'
 
@@ -179,8 +178,9 @@ def delete_device(event, context):
 
 @api_action
 def get_device_position(event, context):
+    id = event['pathParameters']['id']
     response = location_client.get_device_position(
-        DeviceId=DEVICE_ID,
+        DeviceId=id,
         TrackerName=TRACKER_NAME
     )
     del response['ResponseMetadata']
