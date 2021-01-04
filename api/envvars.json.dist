@@ -1,0 +1,14 @@
+{
+	"GetDevicesFn": {
+		"ALS_DEMO_DDB_TABLE_NAME": "<YOUR_VALUE>"
+	},
+	"CreateDeviceFn": {
+		"ALS_DEMO_DDB_TABLE_NAME": "<YOUR_VALUE>"
+	},
+	"DeleteDeviceFn": {
+		"ALS_DEMO_DDB_TABLE_NAME": "<YOUR_VALUE>"
+	},
+	"GetDevicePositionFn": {
+		"ALS_DEMO_DDB_TABLE_NAME": "<YOUR_VALUE>"
+	}
+}

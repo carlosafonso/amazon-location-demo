@@ -7,9 +7,9 @@ import os
 
 
 class DeviceRepository(object):
-    def __init__(self, ddb_resource):
+    def __init__(self, ddb_resource, table_name):
         self._ddb = ddb_resource
-        self._devices_table = ddb_resource.Table('Devices')
+        self._devices_table = ddb_resource.Table(table_name)
 
     def _serialize_decimals(self, obj):
         """This is a hacky way to work around Boto3's requirement that numbers
@@ -101,12 +101,13 @@ AWS_ENDPOINT = None
 if 'AWS_SAM_LOCAL' in os.environ:
     AWS_ENDPOINT = 'http://host.docker.internal:8000'
 
-GEOFENCE_COLLECTION_NAME = 'MyGeofenceCollection'
-TRACKER_NAME = 'MyTracker'
+GEOFENCE_COLLECTION_NAME = os.environ['ALS_DEMO_GEOFENCE_COLLECTION_NAME']
+TRACKER_NAME = os.environ['ALS_DEMO_TRACKER_NAME']
+DDB_TABLE_NAME = os.environ['ALS_DEMO_DDB_TABLE_NAME']
 
 location_client = boto3.client('location')
 ddb_resource = boto3.resource('dynamodb', endpoint_url=AWS_ENDPOINT)
-device_repo = DeviceRepository(ddb_resource=ddb_resource)
+device_repo = DeviceRepository(ddb_resource=ddb_resource, table_name=DDB_TABLE_NAME)
 
 
 @api_action

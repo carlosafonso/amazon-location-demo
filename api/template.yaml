@@ -2,11 +2,24 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Demo app to showcase Amazon Location Service.
 
+Parameters:
+  GeofenceCollectionName:
+    Type: String
+    Description: The name of the geofence collection as defined in Amazon Location Service
+  TrackerName:
+    Type: String
+    Description: The name of the tracker as defined in Amazon Location Service
+
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
     Runtime: python3.8
     Timeout: 60
+    Environment:
+      Variables:
+        ALS_DEMO_DDB_TABLE_NAME: !Ref DevicesTable
+        ALS_DEMO_GEOFENCE_COLLECTION_NAME: !Ref GeofenceCollectionName
+        ALS_DEMO_TRACKER_NAME: !Ref TrackerName
   Api:
     Cors: "'*'"
 
