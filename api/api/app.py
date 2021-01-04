@@ -1,3 +1,4 @@
+import botocore
 import boto3
 import datetime
 import decimal
@@ -178,10 +179,15 @@ def delete_device(event, context):
 
 @api_action
 def get_device_position(event, context):
-    id = event['pathParameters']['id']
-    response = location_client.get_device_position(
-        DeviceId=id,
-        TrackerName=TRACKER_NAME
-    )
-    del response['ResponseMetadata']
-    return build_success(response)
+    try:
+        id = event['pathParameters']['id']
+        response = location_client.get_device_position(
+            DeviceId=id,
+            TrackerName=TRACKER_NAME
+        )
+        del response['ResponseMetadata']
+        return build_success(response)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == 'ResourceNotFoundException':
+            return build_not_found(e.response['Error']['Message'])
+        raise
