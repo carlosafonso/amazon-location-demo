@@ -24,6 +24,36 @@ Globals:
     Cors: "'*'"
 
 Resources:
+  IdentityPool:
+    Type: AWS::Cognito::IdentityPool
+    Properties:
+      AllowUnauthenticatedIdentities: true
+
+  IdentityPoolUnauthedRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: cognito-identity.amazonaws.com
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                "cognito-identity.amazonaws.com:aud": !Ref IdentityPool
+              "ForAnyValue:StringLike":
+                "cognito-identity.amazonaws.com:amr": "unauthenticated"
+
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
+
+  IdentityPoolUnauthedRoleAttachment:
+    Type: AWS::Cognito::IdentityPoolRoleAttachment
+    Properties:
+      IdentityPoolId: !Ref IdentityPool
+      Roles:
+        "unauthenticated": !GetAtt IdentityPoolUnauthedRole.Arn
+
   DevicesTable:
     Type: AWS::Serverless::SimpleTable
     Properties:
@@ -144,3 +174,6 @@ Outputs:
   ApiEndpoint:
     Description: "API Gateway endpoint URL for Prod stage for Hello World function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+  IdentityPoolId:
+    Description: "The ID of the Cognito Identity Pool used to authenticate requests from the web app"
+    Value: !Ref IdentityPool

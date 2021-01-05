@@ -77,7 +77,7 @@ sam deploy --guided
 
 You'll need to answer some questions to the last command, after which a CloudFormation stack will be created. Remember that the values of the `GeofenceCollectionName` and `TrackerName` parameters correspond to the names of the Amazon Location Service geofence collection and tracker, respectively, that you created in the Requirements section above.
 
-The output of the stack will be the API endpoint, hosted in Amazon API Gateway. Write this down as you'll need it later.
+The stack will output two values, `ApiEndpoint` and `IdentityPoolId`. Write these down as you'll need them later.
 
 ### Web app
 
