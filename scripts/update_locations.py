@@ -61,6 +61,7 @@ if __name__ == '__main__':
                       help='The URL of the API endpoint (defaults to http://localhost:3000).',
                       default='http://localhost:3000')
   parser.add_argument('--interval',
+                      type=int,
                       help='How much time (in seconds) to wait between updates (defaults to 2).',
                       default=2)
 
