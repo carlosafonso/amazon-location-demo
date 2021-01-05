@@ -6,6 +6,9 @@ Parameters:
   GeofenceCollectionName:
     Type: String
     Description: The name of the geofence collection as defined in Amazon Location Service
+  NotificationEmailAddress:
+    Type: String
+    Description: The email address that will receive notifications when a device enters or exists a geofence
   TrackerName:
     Type: String
     Description: The name of the tracker as defined in Amazon Location Service
@@ -43,7 +46,6 @@ Resources:
                 "cognito-identity.amazonaws.com:aud": !Ref IdentityPool
               "ForAnyValue:StringLike":
                 "cognito-identity.amazonaws.com:amr": "unauthenticated"
-
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AdministratorAccess
 
@@ -53,6 +55,39 @@ Resources:
       IdentityPoolId: !Ref IdentityPool
       Roles:
         "unauthenticated": !GetAtt IdentityPoolUnauthedRole.Arn
+
+  Topic:
+    Type: AWS::SNS::Topic
+    Properties:
+      Subscription:
+        - Endpoint: !Ref NotificationEmailAddress
+          Protocol: email
+
+  TopicPolicy:
+    Type: AWS::SNS::TopicPolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+            Action: 'sns:Publish'
+            Resource: '*'
+      Topics:
+        - !Ref Topic
+
+  GeofenceTriggerRule:
+    Type: AWS::Events::Rule
+    Properties:
+      EventPattern:
+        source:
+          - 'aws.geo'
+        detail-type:
+          - 'Location Geofence Event'
+      State: ENABLED
+      Targets:
+        - Arn: !Ref Topic
+          Id: EmailNotification
 
   DevicesTable:
     Type: AWS::Serverless::SimpleTable

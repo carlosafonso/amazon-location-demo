@@ -75,7 +75,11 @@ sam build --use-container
 sam deploy --guided
 ```
 
-You'll need to answer some questions to the last command, after which a CloudFormation stack will be created. Remember that the values of the `GeofenceCollectionName` and `TrackerName` parameters correspond to the names of the Amazon Location Service geofence collection and tracker, respectively, that you created in the Requirements section above.
+You'll need to answer some questions to the last command, after which a CloudFormation stack will be created. Among these, you'll be asked to provide values for the following parameters:
+
+* `GeofenceCollectionName`: the name of the geofence created earlier in Amazon Location Service.
+* `TrackerName`: the name of the tracker created earlier in Amazon Location Service.
+* `NotificationEmailAddress`: an email address that will receive alerts when a device enters or exits a geofence.
 
 The stack will output two values, `ApiEndpoint` and `IdentityPoolId`. Write these down as you'll need them later.
 
@@ -117,6 +121,19 @@ For info on the available parameters, use this:
 ./scripts/update_locations.py -h
 ```
 
+## How to use
+
+1. With the API running, visit the website.
+2. Click on the **Geofence** button in the toolbar.
+3. Draw a polygon in the map.
+4. Enter a name in the **Geofence ID** text box and click **Create geofence**.
+5. Then click on **Device** in the toolbar.
+6. Draw a path that will be followed by this device. Make sure that the path crosses the geofencec boundaries at least once (otherwise no events will be triggered by Amazon Location Service).
+7. Enter a name for the device in the **Device ID** text box and click **Create device**.
+8. Then run the `update_locations.py` script. This script will periodically update the position of the device, moving it along the defined path.
+
+Whenever the device enters or exits the geofence, you will receive an SNS notification at the email address that you specified earlier.
+
 ## Local development
 
 There's a Docker Compose file at the root of the project which will start DynamoDB Local.
@@ -150,9 +167,9 @@ sam build --use-container --cached
 To run locally:
 
 ```
-sam build --use-container && \
+sam build --use-container --cached && \
     sam local start-api \
         -n ./envvars.json \
-        --parameter-overrides "GeofenceCollectionName=<YOUR_GEOFENCE_COLLECTION_NAME>" "TrackerName=<YOUR_TRACKER_NAME>" \
+        --parameter-overrides "GeofenceCollectionName=<YOUR_GEOFENCE_COLLECTION_NAME>" "TrackerName=<YOUR_TRACKER_NAME>" "NotificationEmailAddress=<YOUR_EMAIL_ADDRESS>"\
         --warm-containers LAZY
 ```
