@@ -23,7 +23,12 @@ function build(cb) {
 }
 
 function watch(cb) {
-    gulp.watch(['./index.html', './app.js'], gulp.series(clean, build));
+    var files = [
+        './index.html',
+        './app.js',
+        './config.json'
+    ];
+    gulp.watch(files, gulp.series(clean, build));
 }
 
 exports.watch = watch;
