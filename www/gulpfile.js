@@ -22,4 +22,10 @@ function build(cb) {
     cb();
 }
 
+function watch(cb) {
+    gulp.watch(['./index.html', './app.js'], gulp.series(clean, build));
+}
+
+exports.watch = watch;
+
 exports.default = gulp.series(clean, build);
