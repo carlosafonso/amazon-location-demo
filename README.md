@@ -128,7 +128,7 @@ For info on the available parameters, use this:
 3. Draw a polygon in the map.
 4. Enter a name in the **Geofence ID** text box and click **Create geofence**.
 5. Then click on **Device** in the toolbar.
-6. Draw a path that will be followed by this device. Make sure that the path crosses the geofencec boundaries at least once (otherwise no events will be triggered by Amazon Location Service).
+6. Draw a path that will be followed by this device. Make sure that the path crosses the geofence boundaries at least once (otherwise no events will be triggered by Amazon Location Service).
 7. Enter a name for the device in the **Device ID** text box and click **Create device**.
 8. Then run the `update_locations.py` script. This script will periodically update the position of the device, moving it along the defined path.
 
