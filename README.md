@@ -69,7 +69,7 @@ From the `api` folder run the following:
 
 ```
 # Build the project
-sam build --use-container
+sam build --use-container --cached
 
 # Deploy it
 sam deploy --guided
