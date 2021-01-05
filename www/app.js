@@ -204,8 +204,10 @@ class App {
       .then(d => {
         // Remove device and related marker from map and app state
         this.devices = this.devices.filter(device => device.DeviceId !== id);
-        this.markers[id].remove();
-        delete this.markers[id];
+        if (this.markers[id] !== undefined) {
+          this.markers[id].remove();
+          delete this.markers[id];
+        }
       })
       .then(d => this._getDevices())
       .then(d => this.hideLoadingOverlay());
