@@ -50,6 +50,10 @@ class ApiService {
   getDevicePosition(id) {
     return fetch(`${this.endpoint}/devices/${id}/position`).then(response => response.json());
   }
+
+  searchPois(term) {
+    return fetch(`${this.endpoint}/pois?term=${term}`).then(response => response.json());
+  }
 }
 
 class App {
@@ -63,15 +67,18 @@ class App {
     this.apiService = apiService;
 
     this.markers = {};
+    this.poiMarker = null;
 
     this.geofencesData = {type: 'FeatureCollection', features: []};
     this.devicesData = {type: 'FeatureCollection', features: []};
 
+    this.searchPoisForm = document.getElementById('search-pois-form');
+    this.searchPoisTermTextBox = document.getElementById('pois-search-term');
     this.toggleDefaultModeBtn = document.getElementById('toggle-default-mode-btn');
     this.toggleGeofenceCreationModeBtn = document.getElementById('toggle-geofence-creation-mode-btn');
     this.toggleDeviceCreationModeBtn = document.getElementById('toggle-device-creation-mode-btn');
-    this.createGeofenceBtn = document.getElementById('create-geofence-btn');
-    this.createDeviceBtn = document.getElementById('create-device-btn')
+    this.createGeofenceForm = document.getElementById('create-geofence-form');
+    this.createDeviceForm = document.getElementById('create-device-form')
     this.loadingOverlay = document.getElementById('loading-overlay');
     this.loadingText = document.getElementById('loading-text');
     this.newGeofenceIdTextBox = document.getElementById('new-geofence-id');
@@ -211,6 +218,34 @@ class App {
       })
       .then(d => this._getDevices())
       .then(d => this.hideLoadingOverlay());
+  }
+
+  _searchPois() {
+    const term = this.searchPoisTermTextBox.value.trim();
+    if (!term.length) {
+      throw 'Search term has not been provided';
+    }
+
+    this.showLoadingOverlay('Searching POIs...');
+    return this.apiService.searchPois(term)
+      .then(results => {
+        // Remove the previous marker
+        if (this.poiMarker !== null) {
+          this.poiMarker.remove();
+          this.poiMarker = null;
+        }
+
+        // Add new marker if there's at least one result
+        if (results.length) {
+          let marker = new mapboxgl.Marker({color: '#00ff00'})
+            .setLngLat(results[0].Place.Geometry.Point)
+            .addTo(this.map);
+          this.poiMarker = marker;
+        } else {
+          console.info('POI search yielded no results.');
+        }
+      })
+      .finally(d => this.hideLoadingOverlay());
   }
 
   _transformRequest(url, resourceType) {
@@ -441,8 +476,18 @@ class App {
     this.toggleDefaultModeBtn.onclick = () => {this.toggleDefaultMode();};
     this.toggleGeofenceCreationModeBtn.onclick = () => {this.toggleGeofenceCreationMode();};
     this.toggleDeviceCreationModeBtn.onclick = () => {this.toggleDeviceCreationMode();};
-    this.createGeofenceBtn.onclick = () => {this._createGeofence();};
-    this.createDeviceBtn.onclick = () => {this._createDevice();};
+    this.createGeofenceForm.onsubmit = (e) => {
+      e.preventDefault();
+      this._createGeofence();
+    };
+    this.createDeviceForm.onsubmit = (e) => {
+      e.preventDefault();
+      this._createDevice();
+    };
+    this.searchPoisForm.onsubmit = (e) => {
+      e.preventDefault();
+      this._searchPois();
+    };
 
     // Initialize the map and fetch resources
     this._initializeMap()

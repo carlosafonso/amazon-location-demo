@@ -12,6 +12,9 @@ Parameters:
   TrackerName:
     Type: String
     Description: The name of the tracker as defined in Amazon Location Service
+  PlaceIndexName:
+    Type: String
+    Description: The name of the places index as defined in Amazon Location Service
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
@@ -23,6 +26,7 @@ Globals:
         ALS_DEMO_DDB_TABLE_NAME: !Ref DevicesTable
         ALS_DEMO_GEOFENCE_COLLECTION_NAME: !Ref GeofenceCollectionName
         ALS_DEMO_TRACKER_NAME: !Ref TrackerName
+        ALS_DEMO_PLACE_INDEX_NAME: !Ref PlaceIndexName
   Api:
     Cors: "'*'"
 
@@ -203,6 +207,19 @@ Resources:
           Type: Api
           Properties:
             Path: /devices/{id}/position
+            Method: GET
+
+  SearchPoisFn:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: api/
+      Handler: app.search_pois
+      Role: !GetAtt GenericLambdaExecutionRole.Arn
+      Events:
+        GetDevicePosition:
+          Type: Api
+          Properties:
+            Path: /pois
             Method: GET
 
 Outputs:

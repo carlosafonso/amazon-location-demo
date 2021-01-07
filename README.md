@@ -57,6 +57,12 @@ aws location create-tracker \
 aws location associate-tracker-consumer \
     --tracker-name "<YOUR_TRACKER_NAME>" \
     --consumer-arn "<ARN_OF_YOUR_GEOFENCE_COLLECTION>"
+
+# Create a places index
+aws location create-place-index \
+    --data-source "Here" \
+    --index-name "<YOUR_PLACE_INDEX_NAME>" \
+    --pricing-plan "RequestBasedUsage"
 ```
 
 ## Deployment
@@ -124,15 +130,17 @@ For info on the available parameters, use this:
 ## How to use
 
 1. With the API running, visit the website.
-2. Click on the **Geofence** button in the toolbar.
+2. Click on the **Geofence** button in the left sidebar, under _Edit mode_.
 3. Draw a polygon in the map.
-4. Enter a name in the **Geofence ID** text box and click **Create geofence**.
-5. Then click on **Device** in the toolbar.
+4. Enter a name in the **Geofence ID** text box and hit Enter or click the button next to the box.
+5. Then click on **Device** under _Edit mode_.
 6. Draw a path that will be followed by this device. Make sure that the path crosses the geofence boundaries at least once (otherwise no events will be triggered by Amazon Location Service).
-7. Enter a name for the device in the **Device ID** text box and click **Create device**.
+7. Enter a name for the device in the **Device ID** text box and hit Enter.
 8. Then run the `update_locations.py` script. This script will periodically update the position of the device, moving it along the defined path.
 
 Whenever the device enters or exits the geofence, you will receive an SNS notification at the email address that you specified earlier.
+
+You can also look for Points of Interest (POIs) by typing in the **POI Search** text box and pressing Enter.
 
 ## Local development
 
@@ -170,6 +178,10 @@ To run locally:
 sam build --use-container --cached && \
     sam local start-api \
         -n ./envvars.json \
-        --parameter-overrides "GeofenceCollectionName=<YOUR_GEOFENCE_COLLECTION_NAME>" "TrackerName=<YOUR_TRACKER_NAME>" "NotificationEmailAddress=<YOUR_EMAIL_ADDRESS>"\
+        --parameter-overrides \
+            "GeofenceCollectionName=<YOUR_GEOFENCE_COLLECTION_NAME>" \
+            "TrackerName=<YOUR_TRACKER_NAME>" \
+            "PlaceIndexName=<YOUR_PLACES_INDEX_NAME>" \
+            "NotificationEmailAddress=<YOUR_EMAIL_ADDRESS>" \
         --warm-containers LAZY
 ```

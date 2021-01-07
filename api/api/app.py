@@ -78,6 +78,10 @@ def build_success(body):
     return build_response(200, body)
 
 
+def build_bad_request(msg):
+    return build_response(400, {"error": msg})
+
+
 def build_not_found(msg):
     return build_response(404, {"error": msg})
 
@@ -103,6 +107,7 @@ if 'AWS_SAM_LOCAL' in os.environ:
 
 GEOFENCE_COLLECTION_NAME = os.environ['ALS_DEMO_GEOFENCE_COLLECTION_NAME']
 TRACKER_NAME = os.environ['ALS_DEMO_TRACKER_NAME']
+PLACE_INDEX_NAME = os.environ['ALS_DEMO_PLACE_INDEX_NAME']
 DDB_TABLE_NAME = os.environ['ALS_DEMO_DDB_TABLE_NAME']
 
 location_client = boto3.client('location')
@@ -192,3 +197,20 @@ def get_device_position(event, context):
         if e.response['Error']['Code'] == 'ResourceNotFoundException':
             return build_not_found(e.response['Error']['Message'])
         raise
+
+
+@api_action
+def search_pois(event, context):
+    if not event['queryStringParameters'] or 'term' not in event['queryStringParameters']:
+        return build_bad_request("Missing query string parameter 'term'")
+
+    term = event['queryStringParameters']['term'].strip()
+    if not len(term):
+        return build_bad_request("Missing query string parameter 'term'")
+
+    response = location_client.search_place_index_for_text(
+        IndexName=PLACE_INDEX_NAME,
+        Text=term
+    )
+
+    return build_success(response['Results'])
