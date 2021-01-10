@@ -48,8 +48,18 @@ Resources:
                 "cognito-identity.amazonaws.com:aud": !Ref IdentityPool
               "ForAnyValue:StringLike":
                 "cognito-identity.amazonaws.com:amr": "unauthenticated"
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AdministratorAccess
+      Policies:
+        - PolicyName: MapRenderingPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: 'Allow'
+                Action:
+                  - 'geo:GetMapGlyphs'
+                  - 'geo:GetMapSprites'
+                  - 'geo:GetMapStyleDescriptor'
+                  - 'geo:GetMapTile'
+                Resource: '*'
 
   IdentityPoolUnauthedRoleAttachment:
     Type: AWS::Cognito::IdentityPoolRoleAttachment
@@ -102,9 +112,7 @@ Resources:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
 
-  # Temporary role with too-wide permissions. Should create one role per
-  # function with least privilege principle.
-  GenericLambdaExecutionRole:
+  ApiFunctionsExecutionRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -113,8 +121,25 @@ Resources:
             Principal:
               Service: lambda.amazonaws.com
             Action: sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AdministratorAccess
+      Policies:
+        - PolicyName: ApiFunctionsExecutionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: 'Allow'
+                Action:
+                  - 'geo:BatchDeleteGeofence'
+                  - 'geo:ListGeofences'
+                  - 'geo:GetDevicePosition'
+                  - 'geo:PutGeofence'
+                  - 'geo:SearchPlaceIndexForText'
+                Resource: '*'
+              - Effect: 'Allow'
+                Action:
+                  - 'dynamodb:DeleteItem'
+                  - 'dynamodb:PutItem'
+                  - 'dynamodb:Scan'
+                Resource: !GetAtt DevicesTable.Arn
 
   Api:
     Type: AWS::Serverless::Api
@@ -144,7 +169,7 @@ Resources:
     Properties:
       CodeUri: api/
       Handler: app.get_geofences
-      Role: !GetAtt GenericLambdaExecutionRole.Arn
+      Role: !GetAtt ApiFunctionsExecutionRole.Arn
       Events:
         GetGeofences:
           Type: Api
@@ -160,7 +185,7 @@ Resources:
     Properties:
       CodeUri: api/
       Handler: app.create_geofence
-      Role: !GetAtt GenericLambdaExecutionRole.Arn
+      Role: !GetAtt ApiFunctionsExecutionRole.Arn
       Events:
         CreateGeofence:
           Type: Api
@@ -176,7 +201,7 @@ Resources:
     Properties:
       CodeUri: api/
       Handler: app.delete_geofence
-      Role: !GetAtt GenericLambdaExecutionRole.Arn
+      Role: !GetAtt ApiFunctionsExecutionRole.Arn
       Events:
         DeleteGeofence:
           Type: Api
@@ -192,7 +217,7 @@ Resources:
     Properties:
       CodeUri: api/
       Handler: app.get_devices
-      Role: !GetAtt GenericLambdaExecutionRole.Arn
+      Role: !GetAtt ApiFunctionsExecutionRole.Arn
       Events:
         GetGeofences:
           Type: Api
@@ -208,7 +233,7 @@ Resources:
     Properties:
       CodeUri: api/
       Handler: app.create_device
-      Role: !GetAtt GenericLambdaExecutionRole.Arn
+      Role: !GetAtt ApiFunctionsExecutionRole.Arn
       Events:
         GetGeofences:
           Type: Api
@@ -224,7 +249,7 @@ Resources:
     Properties:
       CodeUri: api/
       Handler: app.delete_device
-      Role: !GetAtt GenericLambdaExecutionRole.Arn
+      Role: !GetAtt ApiFunctionsExecutionRole.Arn
       Events:
         DeleteGeofence:
           Type: Api
@@ -240,7 +265,7 @@ Resources:
     Properties:
       CodeUri: api/
       Handler: app.get_device_position
-      Role: !GetAtt GenericLambdaExecutionRole.Arn
+      Role: !GetAtt ApiFunctionsExecutionRole.Arn
       Events:
         GetDevicePosition:
           Type: Api
@@ -256,7 +281,7 @@ Resources:
     Properties:
       CodeUri: api/
       Handler: app.search_pois
-      Role: !GetAtt GenericLambdaExecutionRole.Arn
+      Role: !GetAtt ApiFunctionsExecutionRole.Arn
       Events:
         GetDevicePosition:
           Type: Api
