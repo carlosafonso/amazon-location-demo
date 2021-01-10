@@ -11,8 +11,12 @@ import time
 location = boto3.client('location')
 
 
-def get_devices(endpoint_url):
-  return requests.get(endpoint_url + '/devices').json()
+def get_devices(endpoint_url, api_key):
+  headers = {}
+  if api_key:
+    headers = {'X-API-Key': api_key}
+
+  return requests.get(endpoint_url + '/devices', headers=headers).json()
 
 
 def update_device_position(id, lng, lat, tracker_name):
@@ -38,12 +42,13 @@ def process_device(device, interval, tracker_name):
     logging.info("Device '{}' has completed one lap".format(device['DeviceId']))
 
 
-def main(tracker_name, endpoint_url, interval):
+def main(tracker_name, endpoint_url, api_key, interval):
   logging.info(" > Tracker: {}".format(tracker_name))
   logging.info(" > Endpoint URL: {}".format(endpoint_url))
+  logging.info(" > API key: {}".format(api_key))
   logging.info(" > Interval: {} seconds".format(interval))
 
-  devices = get_devices(endpoint_url)
+  devices = get_devices(endpoint_url, api_key)
 
   for device in devices:
     t = threading.Thread(target=process_device, args=(device, interval, tracker_name))
@@ -60,10 +65,12 @@ if __name__ == '__main__':
   parser.add_argument('--endpoint-url',
                       help='The URL of the API endpoint (defaults to http://localhost:3000).',
                       default='http://localhost:3000')
+  parser.add_argument('--api-key',
+                      help='The API key used to authenticate requests to the API')
   parser.add_argument('--interval',
                       type=int,
                       help='How much time (in seconds) to wait between updates (defaults to 2).',
                       default=2)
 
   args = parser.parse_args()
-  main(args.tracker_name, args.endpoint_url, args.interval)
+  main(args.tracker_name, args.endpoint_url, args.api_key, args.interval)
