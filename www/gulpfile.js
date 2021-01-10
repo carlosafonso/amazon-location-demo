@@ -12,6 +12,7 @@ function build(cb) {
 
     gulp.src(['./index.html'])
         .pipe(replace('@@apiEndpoint', settings.apiEndpoint))
+        .pipe(replace('@@apiKey', settings.apiKey))
         .pipe(replace('@@cognitoIdentityPoolId', settings.cognitoIdentityPoolId))
         .pipe(replace('@@mapName', settings.mapName))
         .pipe(gulp.dest('./dist'));

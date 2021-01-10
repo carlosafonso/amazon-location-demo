@@ -1,16 +1,35 @@
 const { Signer } = window.aws_amplify_core;
 
 class ApiService {
-  constructor(endpoint) {
+  constructor(endpoint, apiKey) {
     this.endpoint = endpoint;
+    this.apiKey = apiKey;
+  }
+
+  /**
+   * Wrapper around WindowOrWorkerGlobalScope.fetch() that includes the API key
+   * headers.
+   */
+  _fetch(url, data) {
+    if (data === undefined) {
+      data = {};
+    }
+
+    if (!data.hasOwnProperty('headers')) {
+      data.headers = {};
+    }
+
+    data.headers['X-API-Key'] = this.apiKey;
+
+    return fetch(url, data);
   }
 
   getGeofences() {
-    return fetch(`${this.endpoint}/geofences`).then(response => response.json());
+    return this._fetch(`${this.endpoint}/geofences`).then(response => response.json());
   }
 
   createGeofence(id, coordinates) {
-    return fetch(
+    return this._fetch(
       `${this.endpoint}/geofences`,
       {
         method: 'POST',
@@ -20,18 +39,18 @@ class ApiService {
   }
 
   deleteGeofence(id) {
-    return fetch(
+    return this._fetch(
       `${this.endpoint}/geofences/${id}`,
       {method: 'DELETE'}
     ).then(response => response.json());
   }
 
   getDevices() {
-    return fetch(`${this.endpoint}/devices`).then(response => response.json());
+    return this._fetch(`${this.endpoint}/devices`).then(response => response.json());
   }
 
   createDevice(id, coordinates) {
-    return fetch(
+    return this._fetch(
       `${this.endpoint}/devices`,
       {
         method: 'POST',
@@ -41,18 +60,18 @@ class ApiService {
   }
 
   deleteDevice(id) {
-    return fetch(
+    return this._fetch(
       `${this.endpoint}/devices/${id}`,
       {method: 'DELETE'}
     ).then(response => response.json());
   }
 
   getDevicePosition(id) {
-    return fetch(`${this.endpoint}/devices/${id}/position`).then(response => response.json());
+    return this._fetch(`${this.endpoint}/devices/${id}/position`).then(response => response.json());
   }
 
   searchPois(term) {
-    return fetch(`${this.endpoint}/pois?term=${term}`).then(response => response.json());
+    return this._fetch(`${this.endpoint}/pois?term=${term}`).then(response => response.json());
   }
 }
 
@@ -500,7 +519,7 @@ class App {
 }
 
 window.onload = () => {
-  let apiService = new ApiService(API_ENDPOINT);
+  let apiService = new ApiService(API_ENDPOINT, API_KEY);
   let app = new App(apiService);
   app.init();
 };

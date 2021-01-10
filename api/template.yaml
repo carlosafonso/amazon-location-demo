@@ -27,8 +27,6 @@ Globals:
         ALS_DEMO_GEOFENCE_COLLECTION_NAME: !Ref GeofenceCollectionName
         ALS_DEMO_TRACKER_NAME: !Ref TrackerName
         ALS_DEMO_PLACE_INDEX_NAME: !Ref PlaceIndexName
-  Api:
-    Cors: "'*'"
 
 Resources:
   IdentityPool:
@@ -118,6 +116,29 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AdministratorAccess
 
+  Api:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      Auth:
+        # Setting 'ApiKeyRequired' to 'true' in the whole API would also
+        # require auth at the CORS preflight endpoints (OPTIONS), and we don't
+        # want that. Thus, we're defining it on a per-function basis instead.
+        UsagePlan:
+          CreateUsagePlan: PER_API
+      Cors:
+        AllowMethods: "'GET,POST,DELETE,OPTIONS'"
+        AllowHeaders: "'*'"
+        AllowOrigin: "'*'"
+      GatewayResponses:
+        # This makes sure that all 4xx responses sent by API Gateway (e.g.,
+        # when API keys are missing or invalid) also include the appropriate
+        # CORS headers, so browsers can inspect them and take action.
+        DEFAULT_4xx:
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'*'"
+
   GetGeofencesFn:
     Type: AWS::Serverless::Function
     Properties:
@@ -128,6 +149,9 @@ Resources:
         GetGeofences:
           Type: Api
           Properties:
+            Auth:
+              ApiKeyRequired: true
+            RestApiId: !Ref Api
             Path: /geofences
             Method: GET
 
@@ -141,6 +165,9 @@ Resources:
         CreateGeofence:
           Type: Api
           Properties:
+            Auth:
+              ApiKeyRequired: true
+            RestApiId: !Ref Api
             Path: /geofences
             Method: POST
 
@@ -154,6 +181,9 @@ Resources:
         DeleteGeofence:
           Type: Api
           Properties:
+            Auth:
+              ApiKeyRequired: true
+            RestApiId: !Ref Api
             Path: /geofences/{id}
             Method: DELETE
 
@@ -167,6 +197,9 @@ Resources:
         GetGeofences:
           Type: Api
           Properties:
+            Auth:
+              ApiKeyRequired: true
+            RestApiId: !Ref Api
             Path: /devices
             Method: GET
 
@@ -180,6 +213,9 @@ Resources:
         GetGeofences:
           Type: Api
           Properties:
+            Auth:
+              ApiKeyRequired: true
+            RestApiId: !Ref Api
             Path: /devices
             Method: POST
 
@@ -193,6 +229,9 @@ Resources:
         DeleteGeofence:
           Type: Api
           Properties:
+            Auth:
+              ApiKeyRequired: true
+            RestApiId: !Ref Api
             Path: /devices/{id}
             Method: DELETE
 
@@ -206,6 +245,9 @@ Resources:
         GetDevicePosition:
           Type: Api
           Properties:
+            Auth:
+              ApiKeyRequired: true
+            RestApiId: !Ref Api
             Path: /devices/{id}/position
             Method: GET
 
@@ -219,13 +261,16 @@ Resources:
         GetDevicePosition:
           Type: Api
           Properties:
+            Auth:
+              ApiKeyRequired: true
+            RestApiId: !Ref Api
             Path: /pois
             Method: GET
 
 Outputs:
   ApiEndpoint:
-    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${Api}.execute-api.${AWS::Region}.amazonaws.com/prod/"
   IdentityPoolId:
     Description: "The ID of the Cognito Identity Pool used to authenticate requests from the web app"
     Value: !Ref IdentityPool

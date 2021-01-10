@@ -89,6 +89,8 @@ You'll need to answer some questions to the last command, after which a CloudFor
 
 The stack will output two values, `ApiEndpoint` and `IdentityPoolId`. Write these down as you'll need them later.
 
+The stack will also create an API key to provide a minimum layer of authentication. The value of this can be obtained using the AWS CLI or the API Gateway management console.
+
 ### Web app
 
 First, install all NPM dependencies from the `www` folder:
@@ -100,8 +102,9 @@ npm i
 
 Now copy `config.json.dist` to `config.json` and replace the values within it to the appropriate ones:
 
-* `apiEndpoint` should be the API Gateway endpoint URL (you can retrieve it as an output from the CloudFormation stack).
-* `cognitoIdentityPoolId`: should be the ID of the Cognito Identity Pool (also from the CloudFormation stack).
+* `apiEndpoint`: the API Gateway endpoint URL (you can retrieve it as an output from the CloudFormation stack).
+* `apiKey`: the API key to authenticate your requests.
+* `cognitoIdentityPoolId`: the ID of the Cognito Identity Pool (also from the CloudFormation stack).
 * `mapName`: the name of your map in Amazon Location Service.
 
 Run this to start the web server:
