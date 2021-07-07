@@ -73,6 +73,10 @@ class ApiService {
   searchPois(term) {
     return this._fetch(`${this.endpoint}/pois?term=${term}`).then(response => response.json());
   }
+
+  getRoute(start, end) {
+    return this._fetch(`${this.endpoint}/route?from=${start}&to=${end}`).then(response => response.json());
+  }
 }
 
 class App {
@@ -93,6 +97,9 @@ class App {
 
     this.searchPoisForm = document.getElementById('search-pois-form');
     this.searchPoisTermTextBox = document.getElementById('pois-search-term');
+    this.routingForm = document.getElementById('routing-form');
+    this.routingFromTextBox = document.getElementById('routing-from');
+    this.routingToTextBox = document.getElementById('routing-to');
     this.toggleDefaultModeBtn = document.getElementById('toggle-default-mode-btn');
     this.toggleGeofenceCreationModeBtn = document.getElementById('toggle-geofence-creation-mode-btn');
     this.toggleDeviceCreationModeBtn = document.getElementById('toggle-device-creation-mode-btn');
@@ -267,6 +274,29 @@ class App {
       .finally(d => this.hideLoadingOverlay());
   }
 
+  _getRoute() {
+    const from = this.routingFromTextBox.value.trim();
+    const to = this.routingToTextBox.value.trim();
+
+    Promise.all([
+      this.apiService.searchPois(from),
+      this.apiService.searchPois(to)
+    ]).then((d) => {
+      let fromCoords = d[0][0].Place.Geometry.Point.join(',');
+      let toCoords = d[1][0].Place.Geometry.Point.join(',');
+      return this.apiService.getRoute(fromCoords, toCoords);
+    }).then((d) => {
+      let source = this.map.getSource('_route');
+      source.setData({
+        type: 'Feature',
+        geometry: {
+          type: 'LineString',
+          coordinates: d[0].Geometry.LineString
+        }
+      });
+    });
+  }
+
   _transformRequest(url, resourceType) {
     if (resourceType === "Style" && !url.includes("://")) {
       // resolve to an AWS URL
@@ -384,6 +414,18 @@ class App {
           source: 'devices',
           paint: {
             'line-color': '#ff0000',
+            'line-width': 3
+          }
+        });
+
+        this.map.addSource('_route', {type: 'geojson', data: null});
+        this.map.addLayer({
+          id: '_route',
+          type: 'line',
+          source: '_route',
+          layout: {},
+          paint: {
+            'line-color': '#d657d5',
             'line-width': 3
           }
         });
@@ -506,6 +548,10 @@ class App {
     this.searchPoisForm.onsubmit = (e) => {
       e.preventDefault();
       this._searchPois();
+    };
+    this.routingForm.onsubmit = (e) => {
+      e.preventDefault();
+      this._getRoute();
     };
 
     // Initialize the map and fetch resources

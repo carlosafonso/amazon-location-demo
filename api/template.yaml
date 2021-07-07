@@ -18,6 +18,7 @@ Globals:
         ALS_DEMO_GEOFENCE_COLLECTION_NAME: !Ref GeofenceCollection
         ALS_DEMO_TRACKER_NAME: !Ref Tracker
         ALS_DEMO_PLACE_INDEX_NAME: !Ref PlaceIndex
+        ALS_DEMO_ROUTE_CALCULATOR_NAME: !Ref RouteCalculator
 
 Resources:
   Map:
@@ -51,6 +52,13 @@ Resources:
     Properties:
       DataSource: Here
       IndexName: MyPlaceIndex
+      PricingPlan: RequestBasedUsage
+
+  RouteCalculator:
+    Type: AWS::Location::RouteCalculator
+    Properties:
+      CalculatorName: MyRouteCalculator
+      DataSource: Here
       PricingPlan: RequestBasedUsage
 
   IdentityPool:
@@ -153,6 +161,7 @@ Resources:
               - Effect: 'Allow'
                 Action:
                   - 'geo:BatchDeleteGeofence'
+                  - 'geo:CalculateRoute'
                   - 'geo:ListGeofences'
                   - 'geo:GetDevicePosition'
                   - 'geo:PutGeofence'
@@ -314,6 +323,22 @@ Resources:
               ApiKeyRequired: true
             RestApiId: !Ref Api
             Path: /pois
+            Method: GET
+
+  GetRouteFn:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: api/
+      Handler: app.get_route
+      Role: !GetAtt ApiFunctionsExecutionRole.Arn
+      Events:
+        GetRoute:
+          Type: Api
+          Properties:
+            Auth:
+              ApiKeyRequired: true
+            RestApiId: !Ref Api
+            Path: /route
             Method: GET
 
 Outputs:

@@ -1,14 +1,17 @@
 {
 	"GetDevicesFn": {
-		"ALS_DEMO_DDB_TABLE_NAME": "<YOUR_VALUE>"
+		"ALS_DEMO_DDB_TABLE_NAME": ""
 	},
 	"CreateDeviceFn": {
-		"ALS_DEMO_DDB_TABLE_NAME": "<YOUR_VALUE>"
+		"ALS_DEMO_DDB_TABLE_NAME": ""
 	},
 	"DeleteDeviceFn": {
-		"ALS_DEMO_DDB_TABLE_NAME": "<YOUR_VALUE>"
+		"ALS_DEMO_DDB_TABLE_NAME": ""
 	},
 	"GetDevicePositionFn": {
-		"ALS_DEMO_DDB_TABLE_NAME": "<YOUR_VALUE>"
+		"ALS_DEMO_DDB_TABLE_NAME": ""
+	},
+	"GetRouteFn": {
+		"ALS_DEMO_ROUTE_CALCULATOR_NAME": ""
 	}
 }

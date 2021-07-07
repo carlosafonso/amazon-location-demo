@@ -147,6 +147,7 @@ sam build --use-container --cached && \
             "GeofenceCollectionName=<YOUR_GEOFENCE_COLLECTION_NAME>" \
             "TrackerName=<YOUR_TRACKER_NAME>" \
             "PlaceIndexName=<YOUR_PLACES_INDEX_NAME>" \
+            "RouteCalculatorName=<YOUR_ROUTE_CALCULATOR_NAME>" \
             "NotificationEmailAddress=<YOUR_EMAIL_ADDRESS>" \
         --warm-containers LAZY
 ```

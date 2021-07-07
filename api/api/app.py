@@ -108,6 +108,7 @@ if 'AWS_SAM_LOCAL' in os.environ:
 GEOFENCE_COLLECTION_NAME = os.environ['ALS_DEMO_GEOFENCE_COLLECTION_NAME']
 TRACKER_NAME = os.environ['ALS_DEMO_TRACKER_NAME']
 PLACE_INDEX_NAME = os.environ['ALS_DEMO_PLACE_INDEX_NAME']
+ROUTE_CALCULATOR_NAME = os.environ['ALS_DEMO_ROUTE_CALCULATOR_NAME']
 DDB_TABLE_NAME = os.environ['ALS_DEMO_DDB_TABLE_NAME']
 
 location_client = boto3.client('location')
@@ -214,3 +215,27 @@ def search_pois(event, context):
     )
 
     return build_success(response['Results'])
+
+@api_action
+def get_route(event, context):
+    if (
+        not event['queryStringParameters']
+        or 'from' not in event['queryStringParameters']
+        or 'to' not in event['queryStringParameters']
+    ):
+        return build_bad_request("Missing query string parameters 'from' or 'to'")
+
+    route_from = event['queryStringParameters']['from'].strip()
+    route_to = event['queryStringParameters']['to'].strip()
+
+    if not len(route_from) or not len(route_to):
+        return build_bad_request("Missing query string parameters 'from' or 'to'")
+
+    response = location_client.calculate_route(
+        CalculatorName=ROUTE_CALCULATOR_NAME,
+        DeparturePosition=list(map(float, route_from.split(','))),
+        DestinationPosition=list(map(float, route_to.split(','))),
+        IncludeLegGeometry=True
+    )
+
+    return build_success(response['Legs'])
