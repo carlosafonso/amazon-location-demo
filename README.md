@@ -29,42 +29,6 @@ In addition, you need to have several NPM packages installed globally:
 npm i -g gulp-cli
 ```
 
-### Amazon Location Service resources
-
-At the time that this demo was developed, AWS CloudFormation did not yet support the required Amazon Location Service resources for a fully unattended deployment, so for the time being these need to be created by hand.
-
-Run the following commands, replacing everything between angle brackets with your values (including the brackets themselves):
-
-```
-# Create a map
-aws location create-map \
-    --map-name "<YOUR_MAP_NAME>" \
-    --configuration "Style=VectorEsriNavigation" \
-    --pricing-plan "RequestBasedUsage"
-
-# Create a geofence collection
-aws location create-geofence-collection \
-    --collection-name "<YOUR_GEOFENCE_COLLECTION_NAME>" \
-    --pricing-plan "RequestBasedUsage"
-
-# Create a tracker
-aws location create-tracker \
-    --tracker-name "<YOUR_TRACKER_NAME>" \
-    --pricing-plan "RequestBasedUsage"
-
-# Associate the tracker with the geofence collection (the ARN of the geofence
-# collection was returned when you created the collection in earlier steps)
-aws location associate-tracker-consumer \
-    --tracker-name "<YOUR_TRACKER_NAME>" \
-    --consumer-arn "<ARN_OF_YOUR_GEOFENCE_COLLECTION>"
-
-# Create a places index
-aws location create-place-index \
-    --data-source "Here" \
-    --index-name "<YOUR_PLACE_INDEX_NAME>" \
-    --pricing-plan "RequestBasedUsage"
-```
-
 ## Deployment
 
 ### API
@@ -83,13 +47,11 @@ sam deploy --guided
 
 You'll need to answer some questions to the last command, after which a CloudFormation stack will be created. Among these, you'll be asked to provide values for the following parameters:
 
-* `GeofenceCollectionName`: the name of the geofence created earlier in Amazon Location Service.
-* `TrackerName`: the name of the tracker created earlier in Amazon Location Service.
 * `NotificationEmailAddress`: an email address that will receive alerts when a device enters or exits a geofence.
 
 The stack will output two values, `ApiEndpoint` and `IdentityPoolId`. Write these down as you'll need them later.
 
-The stack will also create an API key to provide a minimum layer of authentication. The value of this can be obtained using the AWS CLI or the API Gateway management console.
+The stack will also create an API key to provide a minimal layer of authentication. The value of this can be obtained using the AWS CLI or the API Gateway management console.
 
 ### Web app
 

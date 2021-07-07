@@ -3,18 +3,9 @@ Transform: AWS::Serverless-2016-10-31
 Description: Demo app to showcase Amazon Location Service.
 
 Parameters:
-  GeofenceCollectionName:
-    Type: String
-    Description: The name of the geofence collection as defined in Amazon Location Service
   NotificationEmailAddress:
     Type: String
     Description: The email address that will receive notifications when a device enters or exists a geofence
-  TrackerName:
-    Type: String
-    Description: The name of the tracker as defined in Amazon Location Service
-  PlaceIndexName:
-    Type: String
-    Description: The name of the places index as defined in Amazon Location Service
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
@@ -24,11 +15,44 @@ Globals:
     Environment:
       Variables:
         ALS_DEMO_DDB_TABLE_NAME: !Ref DevicesTable
-        ALS_DEMO_GEOFENCE_COLLECTION_NAME: !Ref GeofenceCollectionName
-        ALS_DEMO_TRACKER_NAME: !Ref TrackerName
-        ALS_DEMO_PLACE_INDEX_NAME: !Ref PlaceIndexName
+        ALS_DEMO_GEOFENCE_COLLECTION_NAME: !Ref GeofenceCollection
+        ALS_DEMO_TRACKER_NAME: !Ref Tracker
+        ALS_DEMO_PLACE_INDEX_NAME: !Ref PlaceIndex
 
 Resources:
+  Map:
+    Type: AWS::Location::Map
+    Properties:
+      Configuration:
+        Style: VectorEsriNavigation
+      MapName: MyMap
+      PricingPlan: RequestBasedUsage
+
+  GeofenceCollection:
+    Type: AWS::Location::GeofenceCollection
+    Properties:
+      CollectionName: MyGeofenceCollection
+      PricingPlan: RequestBasedUsage
+
+  Tracker:
+    Type: AWS::Location::Tracker
+    Properties:
+      PricingPlan: RequestBasedUsage
+      TrackerName: MyTracker
+
+  TrackerConsumer:
+    Type: AWS::Location::TrackerConsumer
+    Properties:
+      ConsumerArn: !Sub arn:aws:geo:${AWS::Region}:${AWS::AccountId}:geofence-collection/${GeofenceCollection}
+      TrackerName: MyTracker
+
+  PlaceIndex:
+    Type: AWS::Location::PlaceIndex
+    Properties:
+      DataSource: Here
+      IndexName: MyPlaceIndex
+      PricingPlan: RequestBasedUsage
+
   IdentityPool:
     Type: AWS::Cognito::IdentityPool
     Properties:
