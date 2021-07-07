@@ -118,16 +118,16 @@ docker-compose start
 Recreate the table:
 
 ```
-aws --endpoint-url http://host.docker.internal:8000 dynamodb delete-table --table-name Devices
+aws --endpoint-url http://localhost:8000 dynamodb delete-table --table-name Devices
 
-aws --endpoint-url http://host.docker.internal:8000 dynamodb create-table \
+aws --endpoint-url http://localhost:8000 dynamodb create-table \
     --table-name Devices \
     --attribute-definitions AttributeName=DeviceId,AttributeType=S \
     --key-schema AttributeName=DeviceId,KeyType=HASH \
     --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5
 ```
 
-(The endpoint URL of `http://host.docker.internal:8000` is appropriate when the AWS CLI itself runs as a Docker container. If you have the AWS CLI installed locally in your machine, you probably want to use `http://localhost:8000` instead.)
+(If you are running the AWS CLI as a Docker container, you might want to use `http://host.docker.internal:8000` as the endpoint URL instead of `http://localhost:8000`.)
 
 Now get into the `api` folder, copy `api/envvars.json.dist` into `api/envvars.json`, and set the appropriate environment variable values.
 
