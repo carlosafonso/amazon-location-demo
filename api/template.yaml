@@ -92,6 +92,10 @@ Resources:
                   - 'geo:GetMapStyleDescriptor'
                   - 'geo:GetMapTile'
                 Resource: '*'
+                Condition:
+                  StringLike:
+                    'aws:Referer':
+                      - 'http://localhost:5000/*'
 
   IdentityPoolUnauthedRoleAttachment:
     Type: AWS::Cognito::IdentityPoolRoleAttachment
