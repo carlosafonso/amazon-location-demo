@@ -2,6 +2,10 @@
   "devDependencies": {
     "del": "^6.0.0",
     "gulp": "^4.0.2",
-    "gulp-replace": "^1.0.0"
+    "gulp-replace": "^1.0.0",
+    "gulp-useref": "^5.0.0"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.978.0"
   }
 }

@@ -143,13 +143,20 @@
     <!-- JavaScript dependencies -->
     <script src="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.js"></script>
     <script src="https://unpkg.com/@aws-amplify/core@3.7.0/dist/aws-amplify-core.min.js"></script>
-    <script src="./aws-sdk-2.817.0.min.js"></script>
+
+    <!-- build:js scripts/vendor.js -->
+    <script src="./node_modules/aws-sdk/dist/aws-sdk.min.js"></script>
+    <!-- endbuild -->
+
     <script>
       const API_ENDPOINT = '@@apiEndpoint';
       const API_KEY = '@@apiKey';
       const COGNITO_IDENTITY_POOL_ID = '@@cognitoIdentityPoolId';
       const MAP_NAME = '@@mapName';
     </script>
+
+    <!-- build:js scripts/app.js -->
     <script src="./app.js"></script>
+    <!-- endbuild -->
   </body>
 </html>
